@@ -39,18 +39,20 @@ const ProductMediaEditor = (props: InjectedProps) => {
   const isMediaType = supportedProductTypes.includes(product.type?.value);
 
   const { mutateAsync: uploadFile } = useAdminUploadFile();
+const createProductMedia = useAdminCreateProductMediaMutation<
+// @ts-expect-error  
+AdminPostProductMediaReq,
+  ProductMediaRes
+>();
 
-  const createProductMedia = useAdminCreateProductMediaMutation<
-    AdminPostProductMediaReq,
-    ProductMediaRes
-  >();
-  const response = useAdminProductMedias<
-    ProductMediaListParams,
-    ListProductMediaRes
-  >({
-    expand: ["variants"],
-    variant_id: product.variants.map((v) => v.id),
-  });
+const response = useAdminProductMedias<
+// @ts-expect-error  
+ProductMediaListParams,
+  ListProductMediaRes
+>({
+  expand: ["variants"],
+  variant_id: product.variants.map((v) => v.id),
+});
 
   const productMediaList = response.data?.product_medias ?? [];
 
