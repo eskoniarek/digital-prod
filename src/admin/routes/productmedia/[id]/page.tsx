@@ -1,17 +1,17 @@
-import { useAdminVariants } from "medusa-react";
 import { useParams } from "react-router-dom";
 import Table from "../../../components/table";
 import { Container } from "../../../components/shared/container";
 import { useAdminProductMedia } from "../../../components/shared/hooks";
-import { ProductMediaRes } from "../../../../types/product-media";
+import { useAdminVariants } from "medusa-react";
 
 const ProductMediaList = () => {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading } = useAdminProductMedia<ProductMediaRes>(id);
+  // Ensure that the query key is an array
+  const { data, isLoading: isMediaLoading } = useAdminProductMedia(id);
 
   const productMedia = data?.product_media;
 
-  if (isLoading) {
+  if (isMediaLoading) {
     return <div>Loading...</div>;
   }
 
@@ -22,22 +22,22 @@ const ProductMediaList = () => {
           <div className="w-[100px] h-[100px] overflow-hidden p-3">
             <img
               className="w-full h-full object-contain"
-              src={productMedia.file}
-              alt={productMedia.name}
+              src={productMedia?.file}
+              alt={productMedia?.name}
             />
           </div>
         </div>
         <div className="mt-6 flex space-x-6 divide-x">
           <div className="flex flex-col">
             <div className="inter-smaller-regular text-grey-50 mb-1">Name</div>
-            <div>{productMedia.name}</div>
+            <div>{productMedia?.name}</div>
           </div>
           <div className="flex flex-col pl-6">
             <div className="inter-smaller-regular text-grey-50 mb-1">
               Mime Type
             </div>
             <div className="max-w-[200px] truncate">
-              {productMedia.mime_type}
+              {productMedia?.mime_type}
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@ const ProductMediaList = () => {
             </Table.HeadRow>
           </Table.Head>
           <Table.Body>
-            {productMedia.variants.map((variant) => (
+            {productMedia?.variants.map((variant) => (
               <VariantRow key={variant.id} attachment={variant} />
             ))}
           </Table.Body>
@@ -62,7 +62,6 @@ const ProductMediaList = () => {
     </>
   );
 };
-
 const VariantRow = ({ attachment }) => {
   const { variants, isLoading } = useAdminVariants({
     id: attachment.variant_id,

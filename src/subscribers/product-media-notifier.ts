@@ -88,7 +88,7 @@ export default class MySubscriber {
           );
 
           // Uncomment this if you wanna grab the token in the console
-          // console.log(token);
+          console.log(token);
 
           // A subscriber should listen to this event and send the
           // media to the customer

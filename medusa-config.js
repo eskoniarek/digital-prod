@@ -32,7 +32,6 @@ const DATABASE_URL =
   process.env.DATABASE_URL || "postgres://localhost/medusa-store";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
-
 const plugins = [
   `medusa-fulfillment-manual`,
   `medusa-payment-manual`,
@@ -52,23 +51,52 @@ const plugins = [
       },
     },
   },
+  {
+    resolve: `medusa-payment-stripe`,
+    options: {
+      api_key: process.env.STRIPE_API_KEY,
+      webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+      capture: true,
+    },
+  },
+  {
+    resolve: `medusa-file-s3`,
+    options: {
+        s3_url: process.env.S3_URL,
+        bucket: process.env.S3_BUCKET,
+        region: process.env.S3_REGION,
+        access_key_id: process.env.S3_ACCESS_KEY_ID,
+        secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+        cache_control: process.env.S3_CACHE_CONTROL,
+        download_file_duration:
+          process.env.S3_DOWNLOAD_FILE_DURATION,
+    },
+  },
+  {
+    resolve: `medusa-plugin-sendgrid`,
+    options: {
+      api_key: process.env.SENDGRID_API_KEY,
+      from: process.env.SENDGRID_FROM,
+      order_placed_template: 
+        process.env.SENDGRID_ORDER_PLACED_ID,
+    },
+  },
 ];
-
 const modules = {
   eventBus: {
     resolve: "@medusajs/event-bus-redis",
     options: {
-      redisUrl: REDIS_URL,
-    },
+      redisUrl: process.env.EVENTS_REDIS_URL,
+    }
   },
   cacheService: {
     resolve: "@medusajs/cache-redis",
     options: {
-      redisUrl: REDIS_URL,
-    },
+      redisUrl: process.env.CACHE_REDIS_URL,
+      ttl:30,
+    }
   },
 };
-
 /** @type {import('@medusajs/medusa').ConfigModule["projectConfig"]} */
 const projectConfig = {
   jwtSecret: process.env.JWT_SECRET,
@@ -76,7 +104,6 @@ const projectConfig = {
   store_cors: STORE_CORS,
   database_url: DATABASE_URL,
   admin_cors: ADMIN_CORS,
-  // Uncomment the following lines to enable REDIS
   redis_url: REDIS_URL,
 };
 

@@ -4,7 +4,7 @@ const JWT_SECRET = process.env.PRODUCT_MEDIA_JWT_SECRET || "secret";
 
 class DownloadAuthorizationService {
   validateToken(token: string): JwtPayload {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, JWT_SECRET) as JwtPayload;
   }
 
   createToken(orderId: string, lineItemId: string, mediaId: string) {
