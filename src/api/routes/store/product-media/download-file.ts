@@ -1,20 +1,15 @@
 import { wrapHandler } from "@medusajs/utils";
 import { Request, Response } from "express";
 import ProductMediaService from "../../../../services/product-media";
-import DownloadAuthorizationService from "../../../../services/download-authorization";
+import DownloadAuthorizationService, { MyTokenPayload } from "../../../../services/download-authorization";
 
 async function handler(req: Request, res: Response) {
   const { token } = req.params;
 
-  const productMediaService: ProductMediaService = req.scope.resolve(
-    "productMediaService"
-  );
+  const productMediaService: ProductMediaService = req.scope.resolve("productMediaService");
+  const authorizationService: DownloadAuthorizationService = req.scope.resolve("downloadAuthorizationService");
 
-  const authorizationService: DownloadAuthorizationService = req.scope.resolve(
-    "downloadAuthorizationService"
-  );
-
-  let verificationResult: { mediaId: string };
+  let verificationResult: MyTokenPayload;
   try {
     verificationResult = authorizationService.validateToken(token);
   } catch (err) {
@@ -22,9 +17,8 @@ async function handler(req: Request, res: Response) {
     return;
   }
 
-  const productMedia = await productMediaService.retrieve(
-    verificationResult.mediaId
-  );
+  // Now TypeScript knows that verificationResult will have a mediaId property
+  const productMedia = await productMediaService.retrieve(verificationResult.mediaId);
 
   res.redirect(productMedia.file);
 }
