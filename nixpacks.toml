@@ -1,2 +1,8 @@
+[phases.setup]
+nixPkgs = ['nodejs', 'yarn']
+
+[phases.install]
+cmds=['yarn install']
+
 [template.environment]
-NEXT_PUBLIC_MEDUSA_BACKEND_URL="URL of your Medusa Server"
+NEXT_PUBLIC_MEDUSA_BACKEND_URL="digital-prod-production.up.railway.app"
