@@ -8,7 +8,6 @@ export type ProductMediaVariantDTO = {
   created_at: Date;
   updated_at: Date;
 };
-
 export type ProductMediaDTO = {
   id: string;
   name?: string;
@@ -16,6 +15,7 @@ export type ProductMediaDTO = {
   mime_type?: string;
   created_at?: Date;
   updated_at?: Date;
+  product_medias?: ResponseProductMedia[]; // new property
 };
 
 export type FilterableProductMediaFields = {

@@ -39,6 +39,7 @@ const plugins = [
     resolve: `@medusajs/file-local`,
     options: {
       upload_dir: "uploads",
+      backend_url:"http://localhost:9000"
     },
   },
   {
@@ -60,25 +61,16 @@ const plugins = [
     },
   },
   {
-    resolve: `medusa-file-s3`,
-    options: {
-        s3_url: process.env.S3_URL,
-        bucket: process.env.S3_BUCKET,
-        region: process.env.S3_REGION,
-        access_key_id: process.env.S3_ACCESS_KEY_ID,
-        secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
-        cache_control: process.env.S3_CACHE_CONTROL,
-        download_file_duration:
-          process.env.S3_DOWNLOAD_FILE_DURATION,
-    },
-  },
-  {
     resolve: `medusa-plugin-sendgrid`,
     options: {
       api_key: process.env.SENDGRID_API_KEY,
       from: process.env.SENDGRID_FROM,
       order_placed_template: 
         process.env.SENDGRID_ORDER_PLACED_ID,
+      customer_password_reset_template:
+        process.env.SENDGRID_CUSTOMER_PASSWORD_RESET_ID,
+      user_password_reset_template:
+        process.env.SENDGRID_USER_PASSWORD_RESET_ID,
     },
   },
 ];

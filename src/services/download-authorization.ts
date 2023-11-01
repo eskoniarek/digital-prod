@@ -11,19 +11,27 @@ export interface MyTokenPayload extends JwtPayload {
 
 class DownloadAuthorizationService {
   validateToken(token: string): MyTokenPayload {
-    // Assert the return value to be of type MyTokenPayload
-    return jwt.verify(token, JWT_SECRET) as MyTokenPayload;
+    try {
+      // Assert the return value to be of type MyTokenPayload
+      const decodedToken = jwt.verify(token, JWT_SECRET) as MyTokenPayload;
+      console.log("Token validation successful. Decoded token:", decodedToken);
+      return decodedToken;
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      throw new Error("Token validation failed");
+    }
   }
 
   createToken(orderId: string, lineItemId: string, mediaId: string) {
-    return jwt.sign(
-      {
-        orderId: orderId,
-        lineItemId: lineItemId,
-        mediaId: mediaId,
-      },
-      JWT_SECRET
-    );
+    const tokenPayload: MyTokenPayload = {
+      orderId: orderId,
+      lineItemId: lineItemId,
+      mediaId: mediaId,
+    };
+
+    const token = jwt.sign(tokenPayload, JWT_SECRET);
+    console.log("Created token:", token);
+    return token;
   }
 }
 
