@@ -20,53 +20,70 @@ const requestSchema = z.object({
 export type ProductMediaListParams = z.infer<typeof requestSchema>;
 
 async function handler(req: Request, res: Response) {
+  console.log("List Product Media Handler: Request started");
   const productMediaService: ProductMediaService = req.scope.resolve(
     "productMediaService"
   );
+
+  // Log the query parameters
+  console.log("List Product Media Handler: Query parameters", req.query);
+
   const { limit, offset, expand, ...query } =
     req.query as ProductMediaListParams;
+
+  // Log the constructed selector
+  console.log("List Product Media Handler: Selector", query);
 
   const selector: FilterableProductMediaFields = {
     ...query,
     attachment_type: ProductMediaVariantType.PREVIEW,
   };
 
-  const [productMedia, count] = await productMediaService.listAndCount(
-    selector,
-    {
-      take: limit,
-      skip: offset,
-    }
-  );
-
-  const result: ResponseProductMedia[] = productMedia;
-
-  if (expand?.includes("variants")) {
-    const mediaIds = productMedia.map((m) => m.id);
-    const variants = await productMediaService.listVariants(mediaIds);
-
-    // create variant map for faster lookup Map<mediaId, variants[]>
-    const variantMap = new Map<string, ProductMediaVariantDTO[]>();
-
-    variants.forEach((v) => {
-      if (!variantMap.has(v.product_media_id)) {
-        variantMap.set(v.product_media_id, []);
+  try {
+    const [productMedia, count] = await productMediaService.listAndCount(
+      selector,
+      {
+        take: limit,
+        skip: offset,
       }
+    );
 
-      variantMap.get(v.product_media_id).push(v);
-    });
+    console.log(`List Product Media Handler: Retrieved ${productMedia.length} items`);
 
-    result.forEach((m) => {
-      m.variants = variantMap.get(m.id) || [];
+    const result: ResponseProductMedia[] = productMedia;
+
+    if (expand?.includes("variants")) {
+      const mediaIds = productMedia.map((m) => m.id);
+
+      // Log the media IDs for which variants are being retrieved
+      console.log("List Product Media Handler: Retrieving variants for media IDs", mediaIds);
+
+      const variants = await productMediaService.listVariants(mediaIds);
+      const variantMap = new Map<string, ProductMediaVariantDTO[]>();
+
+      variants.forEach((v) => {
+        if (!variantMap.has(v.product_media_id)) {
+          variantMap.set(v.product_media_id, []);
+        }
+        variantMap.get(v.product_media_id).push(v);
+      });
+
+      result.forEach((m) => {
+        m.variants = variantMap.get(m.id) || [];
+      });
+    }
+
+    console.log("List Product Media Handler: Sending response");
+    res.json({
+      product_medias: result,
+      count,
+      limit,
+      offset,
     });
+  } catch (error) {
+    console.error("List Product Media Handler: Error occurred", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-
-  res.json({
-    product_medias: result,
-    count,
-    limit,
-    offset,
-  });
 }
 
 export default [validateQuery(requestSchema), wrapHandler(handler)];

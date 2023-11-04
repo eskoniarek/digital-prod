@@ -2,36 +2,26 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.PRODUCT_MEDIA_JWT_SECRET || "secret";
 
-// Define the shape of your payload
-export interface MyTokenPayload extends JwtPayload {
-  orderId: string;
-  lineItemId: string;
+export interface CustomTokenPayload extends JwtPayload {
   mediaId: string;
 }
 
 class DownloadAuthorizationService {
-  validateToken(token: string): MyTokenPayload {
-    try {
-      // Assert the return value to be of type MyTokenPayload
-      const decodedToken = jwt.verify(token, JWT_SECRET) as MyTokenPayload;
-      console.log("Token validation successful. Decoded token:", decodedToken);
-      return decodedToken;
-    } catch (error) {
-      console.error("Token validation failed:", error);
-      throw new Error("Token validation failed");
+  validateToken(token: string): CustomTokenPayload {
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (typeof payload === 'object' && 'mediaId' in payload) {
+      return payload as CustomTokenPayload;
     }
+    throw new Error('Token payload is not valid');
   }
 
-  createToken(orderId: string, lineItemId: string, mediaId: string) {
-    const tokenPayload: MyTokenPayload = {
+  createToken(orderId: string, lineItemId: string, mediaId: string): string {
+    const tokenPayload: CustomTokenPayload = {
       orderId: orderId,
       lineItemId: lineItemId,
       mediaId: mediaId,
     };
-
-    const token = jwt.sign(tokenPayload, JWT_SECRET);
-    console.log("Created token:", token);
-    return token;
+    return jwt.sign(tokenPayload, JWT_SECRET);
   }
 }
 
